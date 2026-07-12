@@ -119,4 +119,4 @@ New-version clone of [`hexawulf/linuxsvr`](https://github.com/hexawulf/linuxsvr)
 
 ## License
 
-_Choose one (MIT recommended for a static showcase) and add a `LICENSE` file._
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
