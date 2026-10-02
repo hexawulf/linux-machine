@@ -1,6 +1,6 @@
 # linux-machine.com
 
-A single-page, **neofetch-style live status site** for **piapps3** — a headless DigitalOcean VPS. It renders as a cream-on-dark terminal card showing the host's live uptime and a hardware snapshot, refreshed on-host and ticked client-side. A new-version clone of [`hexawulf/linuxsvr`](https://github.com/hexawulf/linuxsvr), restyled to the Ubuntu terminal look.
+A single-page, **neofetch-style live status site** for **piapps5** — a headless Interserver KVM VPS in Los Angeles. It renders as a cream-on-dark terminal card showing the host's live uptime and a hardware snapshot, refreshed on-host and ticked client-side. A new-version clone of [`hexawulf/linuxsvr`](https://github.com/hexawulf/linuxsvr), restyled to the Ubuntu terminal look.
 
 **Live:** https://www.linux-machine.com
 
@@ -11,7 +11,7 @@ A single-page, **neofetch-style live status site** for **piapps3** — a headles
 
 ## Overview
 
-The page mimics a terminal running `neofetch`: an Ubuntu logo beside a key/value system readout, a title bar with traffic-light dots (`zk@piapps3`), and the 16-block ANSI color strip. The **Uptime** line is genuinely live — it counts up in the browser and reflects host reachability with a status dot.
+The page mimics a terminal running `neofetch`: an Ubuntu logo beside a key/value system readout, a title bar with traffic-light dots (`zk@piapps5`), and the 16-block ANSI color strip. The **Uptime** line is genuinely live — it counts up in the browser and reflects host reachability with a status dot.
 
 Everything is static (HTML/CSS/vanilla JS). There is no backend and no framework; the only dynamic input is a small JSON file the host regenerates on a timer.
 
@@ -38,17 +38,17 @@ systemd timer ──runs──▶ bin/gen-status.sh ──writes──▶ status
 
 | Field | Type | Example |
 |---|---|---|
-| `hostname` | string | `"piapps3"` |
-| `os` | string | `"Ubuntu 24.04.4 LTS"` |
-| `kernel` | string | `"6.8.0-134-generic"` |
-| `cpu` | string | `"DO-Regular"` |
-| `mem` | string | `"739 / 1967 MiB"` |
-| `disk_root` | string | `"9.3G / 48G (20%)"` |
+| `hostname` | string | `"piapps5"` |
+| `os` | string | `"Ubuntu 26.04.1 LTS"` |
+| `kernel` | string | `"7.0.0-38-generic"` |
+| `cpu` | string | `"Intel(R) Xeon(R) Gold 6230R CPU @ 2.10GHz"` |
+| `mem` | string | `"1895 / 5920 MiB"` |
+| `disk_root` | string | `"8.4G / 117G (8%)"` |
 | `locale` | string | `"en_US.UTF-8"` |
-| `loadavg` | string | `"0.02 0.02 0.00"` |
-| `uptime_pretty` | string | `"up 6 days, 17 hours, 14 minutes"` |
-| `boot_epoch` | integer (unix seconds) | `1783240918` |
-| `generated_epoch` | integer (unix seconds) | `1783821363` |
+| `loadavg` | string | `"0.09 0.10 0.09"` |
+| `uptime_pretty` | string | `"up 5 hours, 30 minutes"` |
+| `boot_epoch` | integer (unix seconds) | `1790918743` |
+| `generated_epoch` | integer (unix seconds) | `1790938595` |
 
 Uptime is derived from `boot_epoch`; freshness/liveness is derived from `generated_epoch`.
 
@@ -67,9 +67,9 @@ linux-machine/
 ## Stack & infrastructure
 
 - **Frontend:** plain HTML/CSS/JS, Ubuntu Mono (Google Fonts), no build step.
-- **Host:** piapps3 — DigitalOcean SGP1, x86_64, Ubuntu 24.04 LTS. Site root is the repo working tree, served by nginx.
+- **Host:** piapps5 — Interserver KVM VPS, Los Angeles (LAX1), x86_64, Ubuntu 26.04 LTS. Site root is the repo working tree, served by nginx. (Moved from piapps3, DigitalOcean SGP1, on 2026-10-02.)
 - **TLS:** Let's Encrypt via certbot (HTTP-01), auto-renewed by `certbot.timer`; a post-renewal hook fixes key permissions and reloads nginx.
-- **Edge:** fronted by Cloudflare (proxied). The origin is nginx on piapps3; the page intentionally exposes **no IP address**.
+- **Edge:** fronted by Cloudflare (proxied). The origin is nginx on piapps5; the page intentionally exposes **no IP address**.
 
 ## Local development
 
@@ -78,17 +78,17 @@ linux-machine/
 ```bash
 cat > status.json <<'JSON'
 {
-  "hostname": "piapps3",
-  "os": "Ubuntu 24.04.4 LTS",
-  "kernel": "6.8.0-134-generic",
-  "cpu": "DO-Regular",
-  "mem": "739 / 1967 MiB",
-  "disk_root": "9.3G / 48G (20%)",
+  "hostname": "piapps5",
+  "os": "Ubuntu 26.04.1 LTS",
+  "kernel": "7.0.0-38-generic",
+  "cpu": "Intel(R) Xeon(R) Gold 6230R CPU @ 2.10GHz",
+  "mem": "1895 / 5920 MiB",
+  "disk_root": "8.4G / 117G (8%)",
   "locale": "en_US.UTF-8",
-  "loadavg": "0.02 0.02 0.00",
-  "uptime_pretty": "up 6 days, 17 hours, 14 minutes",
-  "boot_epoch": 1783240918,
-  "generated_epoch": 1783821363
+  "loadavg": "0.09 0.10 0.09",
+  "uptime_pretty": "up 5 hours, 30 minutes",
+  "boot_epoch": 1790918743,
+  "generated_epoch": 1790938595
 }
 JSON
 python3 -m http.server 8080   # then open http://localhost:8080
@@ -98,7 +98,7 @@ To exercise the "unreachable" state, delete the mock (or set `generated_epoch` f
 
 ## Deployment
 
-The site root on piapps3 is a checkout of this repo. Deploy = pull, then refresh the generated status:
+The site root on piapps5 is a checkout of this repo. Deploy = pull, then refresh the generated status:
 
 ```bash
 git -C /home/zk/projects/linux-machine pull --ff-only
@@ -111,7 +111,7 @@ Static files only — **no nginx reload needed**. The systemd timer keeps `statu
 
 - **No IP on the page.** Neither the public nor any local IP appears in the rendered site (origin sits behind Cloudflare).
 - **`status.json` is gitignored** and generated on-host, so no runtime host data is committed.
-- Pushes from piapps3 authenticate over SSH as a repo-scoped identity — no tokens on the VPS.
+- Pushes from piapps5 authenticate over SSH as a repo-scoped identity — no tokens on the VPS.
 
 ## Credits
 
